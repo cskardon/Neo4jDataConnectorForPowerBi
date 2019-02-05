@@ -1,16 +1,24 @@
-﻿/*2
- * Neo4j Connector for PowerBI
- */
+﻿//////////////////////////////////////////////////////////////////////////////////////////////
+// Neo4j Connector for Power BI
+//   From: https://github.com/cskardon/Neo4jDataConnectorForPowerBi
+//   License details all at the github page, but if you don't want to browse - it's MIT
 section Neo4j;
 
-DefaultRequestHeaders = [
-    #"Authorization" = "Basic " & Neo4j.Encode(Extension.CurrentCredential()[Username], Extension.CurrentCredential()[Password])
-];
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Public Functions
+//   This is badly titled, as technically, only the 'shared' function is public, but the other
+//   2 are in this section as they are the 'meat' of the data connector.
 
+//
+// This is the _shared_ definition which exports the function to be visible to PowerBI
+// NB. The `Value.ReplaceType` call is there to allow the UI to render the 'help' text defined in the `ExecuteCypherType`
+//
 [DataSource.Kind="Neo4j", Publish="Neo4j.Publish"]
 shared Neo4j.ExecuteCypher = Value.ReplaceType(ExecuteCypherImpl, ExecuteCypherType);
 
-
+//
+// This is the type definition - providing hints on the PowerBI UI
+//
 ExecuteCypherType = type function (
  cypher as (type text meta [
         Documentation.FieldCaption = "Cypher",
@@ -62,10 +70,22 @@ let
 in 
 	table;
 
-/*
- * Private Functions
- */
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Private Functions
 
+//
+// Generates the default request headers needed for Neo4j to work
+//
+DefaultRequestHeaders = [
+    #"Authorization" = "Basic " & Neo4j.Encode(Extension.CurrentCredential()[Username], Extension.CurrentCredential()[Password])
+];
+
+//
+// Generates the URI to connect to, taking the scheme, address and port - if these aren't supplied, defaults will be used.
+//  scheme: 'http'
+//  address: 'localhost'
+//  port: 7474
+//
 Neo4j.DefaultUri = (optional scheme as nullable text, optional address as nullable text, optional port as nullable number) =>
 	let
 		_transactionEndPoint = "db/data/transaction/commit",
@@ -76,15 +96,18 @@ Neo4j.DefaultUri = (optional scheme as nullable text, optional address as nullab
 	in
 		uri;
 
-
- /// Encodes a username/password into a combined base64 string of {user}:{password}
+//
+// Encodes a username/password into a combined base64 string of {user}:{password}
+//
 Neo4j.Encode = (user as text, password as text) =>
     let
         encoded = Binary.ToText(Text.ToBinary(user & ":" & password), 0)
     in
         encoded;
 
-/// Takes the cypher given and converts it into a structure Neo4j expects at the Transaction Endpoint
+//
+// Takes the cypher given and converts it into a structure Neo4j expects at the Transaction Endpoint
+//
 Neo4j.CypherToM = (cypher as text) =>
     let 
         binary = Text.ToBinary("{
@@ -94,9 +117,12 @@ Neo4j.CypherToM = (cypher as text) =>
     in
         binary;
 
-/*
- * Definition of the connector
- */
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Connector Definitions
+
+//
+// Connector definition, allows access via User/Password combinations and Anonymous (Implicit)
+//
 Neo4j = [
     Authentication = [
         UsernamePassword = [
@@ -109,19 +135,21 @@ Neo4j = [
     Label = Extension.LoadString("DataSourceLabel")
 ];
 
-/*
- * Data Source UI publishing description
- */
-
+//
+// The UI Publishing definition, i.e. where it shows in the UI, whether it's beta etc
+//
 Neo4j.Publish = [
     Beta = true,
     Category = "Database",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
-    LearnMoreUrl = "https://neo4j.com/",
+    LearnMoreUrl = "https://github.com/cskardon/Neo4jDataConnectorForPowerBi/",
     SourceImage = Neo4j.Icons,
     SourceTypeImage = Neo4j.Icons
 ];
 
+// 
+// Various sized icons for UI display
+//
 Neo4j.Icons = [
     Icon16 = { Extension.Contents("Neo4j16.png"), Extension.Contents("Neo4j20.png"), Extension.Contents("Neo4j24.png"), Extension.Contents("Neo4j32.png") },
     Icon32 = { Extension.Contents("Neo4j32.png"), Extension.Contents("Neo4j40.png"), Extension.Contents("Neo4j48.png"), Extension.Contents("Neo4j64.png") }
