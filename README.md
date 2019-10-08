@@ -1,4 +1,4 @@
-# Neo4j DataConnector For PowerBi
+# Neo4j DataConnector For Power BI
 
 Pretty much what it says on the tin. 
 
@@ -12,3 +12,7 @@ Pretty much what it says on the tin.
   Under the 'Data Extensions' heading select the radio option of:
   > (Not Recommended) Allow any extension to load without validation or warning
 
+## Versions!
+
+1.0 = Initial release
+1.1 = Bug fix to get it working with Neo4j 4.0 MR2 (and probably onwards)

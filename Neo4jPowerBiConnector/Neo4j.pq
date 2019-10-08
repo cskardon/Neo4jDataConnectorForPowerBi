@@ -55,7 +55,7 @@ ExecuteCypherImpl = (
 			optional port as nullable number) as table =>
 let
     _source = Web.Contents(Neo4j.DefaultUri(scheme, address, port), [
-        Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then null else  DefaultRequestHeaders,
+        Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else  DefaultRequestHeaders,
         Content = Neo4j.CypherToM(cypher)
     ]),
     _json = Json.Document(_source),
@@ -77,7 +77,12 @@ in
 // Generates the default request headers needed for Neo4j to work
 //
 DefaultRequestHeaders = [
-    #"Authorization" = "Basic " & Neo4j.Encode(Extension.CurrentCredential()[Username], Extension.CurrentCredential()[Password])
+    #"Authorization" = "Basic " & Neo4j.Encode(Extension.CurrentCredential()[Username], Extension.CurrentCredential()[Password]),
+	#"Content-Type"="application/json"
+];
+
+ImplicitRequestHeaders = [
+	#"Content-Type"="application/json"
 ];
 
 //
