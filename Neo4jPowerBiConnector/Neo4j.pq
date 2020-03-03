@@ -20,25 +20,37 @@ shared Neo4j.ExecuteCypher = Value.ReplaceType(ExecuteCypherImpl, ExecuteCypherT
 // This is the type definition - providing hints on the PowerBI UI
 //
 ExecuteCypherType = type function (
- cypher as (type text meta [
-        Documentation.FieldCaption = "Cypher",
-        Documentation.FieldDescription = "Enter your Cypher query here",
-        Documentation.SampleValues = {"MATCH (n) RETURN n", "MATCH (n) RETURN COUNT(n)"}
+    cypher as (type text meta [
+            Documentation.FieldCaption = "Cypher",
+            Documentation.FieldDescription = "Enter your Cypher query here",
+            Documentation.SampleValues = {"MATCH (n) RETURN n", "MATCH (n) RETURN COUNT(n)"}
     ]),
-optional scheme as (type text meta [
-		Documentation.FieldDescription = "The scheme to connect to your Neo4j instance",
-        Documentation.SampleValues = {"http", "https"},
-		Documentation.AllowedValues = { "http", "https" }
-]),
- optional address as (type text meta [
- Documentation.FieldCaption = "Address",
-        Documentation.FieldDescription = "The address for your Neo4j instance",
-        Documentation.SampleValues = {"localhost.", "127.0.0.1"}
- ]),
- optional port as (type number meta [
-        Documentation.FieldCaption = "Port",
-        Documentation.FieldDescription = "The port of the Neo4j instance",
-        Documentation.SampleValues = {"7474"}])
+    optional scheme as (type text meta [
+		    Documentation.FieldDescription = "The scheme to connect to your Neo4j instance",
+            Documentation.SampleValues = {"http", "https"},
+		    Documentation.AllowedValues = { "http", "https" }
+    ]),
+    optional address as (type text meta [
+            Documentation.FieldCaption = "Address",
+            Documentation.FieldDescription = "The address for your Neo4j instance",
+            Documentation.SampleValues = {"localhost.", "127.0.0.1"}
+    ]),
+    optional port as (type number meta [
+            Documentation.FieldCaption = "Port",
+            Documentation.FieldDescription = "The port of the Neo4j instance",
+            Documentation.SampleValues = {"7474"}
+    ]),
+    optional neo4jVersion as (type number meta [
+            Documentation.FieldCaption = "Neo4j Version",
+            Documentation.FieldDescription = "The version of the server you are connecting to.",
+            Documentation.SampleValues = {3.5, 4.0},
+            Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0}
+    ]),
+    optional databaseName as (type text meta [
+            Documentation.FieldCaption = "Database Name",
+            Documentation.FieldDescription = "The name of your database (only used for a 4.0 DB, if unsure, use neo4j)",
+            Documentation.SampleValues = {"neo4j", "hr"}
+    ])
 ) as table meta [
 		Documentation.Name = "Execute Cypher - Output",
         Documentation.LongDescription = "Provides the response of the query in a Json document"];
@@ -52,10 +64,12 @@ ExecuteCypherImpl = (
 			cypher as text,
 			optional scheme as nullable text,
 			optional address as nullable text, 
-			optional port as nullable number) as table =>
+			optional port as nullable number,
+            optional neo4jVersion as nullable number,
+            optional databaseName as nullable text) as table =>
 let
-    _source = Web.Contents(Neo4j.DefaultUri(scheme, address, port), [
-        Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else  DefaultRequestHeaders,
+    _source = Web.Contents(Neo4j.DefaultUri(scheme, address, port, neo4jVersion, databaseName), [
+        Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else DefaultRequestHeaders,
         Content = Neo4j.CypherToM(cypher)
     ]),
     _json = Json.Document(_source),
@@ -90,10 +104,14 @@ ImplicitRequestHeaders = [
 //  scheme: 'http'
 //  address: 'localhost'
 //  port: 7474
+//  version: 3.5
+//  databaseName: neo4j
 //
-Neo4j.DefaultUri = (optional scheme as nullable text, optional address as nullable text, optional port as nullable number) =>
+Neo4j.DefaultUri = (optional scheme as nullable text, optional address as nullable text, optional port as nullable number, optional neo4jVersion as nullable number, optional databaseName as nullable text) =>
 	let
-		_transactionEndPoint = "db/data/transaction/commit",
+        _version = if(neo4jVersion) is null then 3.5 else neo4jVersion,
+        _databaseName = if(databaseName) is null then "neo4j" else databaseName,
+        _transactionEndPoint = if(_version) < 4.0 then "db/data/transaction/commit" else "db/" & _databaseName & "/tx",
 		_port = if (port) is null then 7474 else port,
 		_address = if address is null then "localhost." else address,
 		_scheme = if scheme is null then "http" else scheme,

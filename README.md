@@ -14,5 +14,6 @@ Pretty much what it says on the tin.
 
 ## Versions!
 
-1.0 = Initial release
-1.1 = Bug fix to get it working with Neo4j 4.0 MR2 (and probably onwards)
+* 1.0 = Initial release
+* 1.1 = Bug fix to get it working with Neo4j 4.0 MR2 (and probably onwards)
+* 1.2 = Neo4j `4.0` release - should work with `3.x` and `4.x`
