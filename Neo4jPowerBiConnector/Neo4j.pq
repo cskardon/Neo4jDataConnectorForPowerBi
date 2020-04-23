@@ -50,11 +50,15 @@ ExecuteCypherType = type function (
             Documentation.FieldCaption = "Database Name",
             Documentation.FieldDescription = "The name of your database (only used for a 4.0 DB, if unsure, use neo4j)",
             Documentation.SampleValues = {"neo4j", "hr"}
+    ]),
+    optional timeout as (type number meta [
+            Documentation.FieldCaption = "Timeout for queries (seconds)",
+            Documentation.FieldDescription = "If you're running a long query you might want to set this high",
+            Documentation.SampleValues = {30}
     ])
 ) as table meta [
 		Documentation.Name = "Execute Cypher - Output",
         Documentation.LongDescription = "Provides the response of the query in a Json document"];
-
 
 ///
 /// This is based on the blog post at: http://xclave.co.uk/2017/06/22/using-powerbi-with-neo4j/ 
@@ -62,15 +66,17 @@ ExecuteCypherType = type function (
 ///
 ExecuteCypherImpl = (
 			cypher as text,
-			optional scheme as nullable text,
+            optional scheme as nullable text,
 			optional address as nullable text, 
 			optional port as nullable number,
             optional neo4jVersion as nullable number,
-            optional databaseName as nullable text) as table =>
+            optional databaseName as nullable text,
+            optional timeout as nullable number) as table =>
 let
     _source = Web.Contents(Neo4j.DefaultUri(scheme, address, port, neo4jVersion, databaseName), [
         Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else DefaultRequestHeaders,
-        Content = Neo4j.CypherToM(cypher)
+        Content = Neo4j.CypherToM(cypher),
+        Timeout=#duration(0,0,0,Neo4j.GetTimeout(timeout))
     ]),
     _json = Json.Document(_source),
 	_results = _json[results],
@@ -139,6 +145,12 @@ Neo4j.CypherToM = (cypher as text) =>
                     }")
     in
         binary;
+
+Neo4j.GetTimeout = (timeout as nullable number) =>
+    let 
+        _timeout = if(timeout) is null then 30 else timeout
+    in
+        _timeout;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Connector Definitions
