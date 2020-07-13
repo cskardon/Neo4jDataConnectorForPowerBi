@@ -26,9 +26,9 @@ ExecuteCypherType = type function (
             Documentation.SampleValues = {"MATCH (n) RETURN n", "MATCH (n) RETURN COUNT(n)"}
     ]),
     optional scheme as (type text meta [
-		    Documentation.FieldDescription = "The scheme to connect to your Neo4j instance",
+            Documentation.FieldDescription = "The scheme to connect to your Neo4j instance",
             Documentation.SampleValues = {"http", "https"},
-		    Documentation.AllowedValues = { "http", "https" }
+            Documentation.AllowedValues = { "http", "https" }
     ]),
     optional address as (type text meta [
             Documentation.FieldCaption = "Address",
@@ -44,11 +44,11 @@ ExecuteCypherType = type function (
             Documentation.FieldCaption = "Neo4j Version",
             Documentation.FieldDescription = "The version of the server you are connecting to.",
             Documentation.SampleValues = {3.5, 4.0},
-            Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0}
+            Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1}
     ]),
     optional databaseName as (type text meta [
             Documentation.FieldCaption = "Database Name",
-            Documentation.FieldDescription = "The name of your database (only used for a 4.0 DB, if unsure, use neo4j)",
+            Documentation.FieldDescription = "The name of your database (only used for a 4.x DB, if unsure, use neo4j)",
             Documentation.SampleValues = {"neo4j", "hr"}
     ]),
     optional timeout as (type number meta [
@@ -57,7 +57,7 @@ ExecuteCypherType = type function (
             Documentation.SampleValues = {30}
     ])
 ) as table meta [
-		Documentation.Name = "Execute Cypher - Output",
+        Documentation.Name = "Execute Cypher - Output",
         Documentation.LongDescription = "Provides the response of the query in a Json document"];
 
 ///
@@ -65,10 +65,10 @@ ExecuteCypherType = type function (
 /// taking into account the comments from 'Will' - to get the column output using the names returned from the query
 ///
 ExecuteCypherImpl = (
-			cypher as text,
+            cypher as text,
             optional scheme as nullable text,
-			optional address as nullable text, 
-			optional port as nullable number,
+            optional address as nullable text, 
+            optional port as nullable number,
             optional neo4jVersion as nullable number,
             optional databaseName as nullable text,
             optional timeout as nullable number) as table =>
@@ -79,16 +79,16 @@ let
         Timeout=#duration(0,0,0,Neo4j.GetTimeout(timeout))
     ]),
     _json = Json.Document(_source),
-	_results = _json[results],
-	_results1 = _results{0},
-	_data = _results1[data],
-	_columns = _results1[columns],
-	_tabledResults = Table.FromList(_data, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-	_rows = Table.ExpandRecordColumn(_tabledResults, "Column1", {"row"}, {"Column1.row"}),
-	_column1Row = _rows[Column1.row],
-	table = Table.FromRows(_column1Row, _columns)
+    _results = _json[results],
+    _results1 = _results{0},
+    _data = _results1[data],
+    _columns = _results1[columns],
+    _tabledResults = Table.FromList(_data, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+    _rows = Table.ExpandRecordColumn(_tabledResults, "Column1", {"row"}, {"Column1.row"}),
+    _column1Row = _rows[Column1.row],
+    table = Table.FromRows(_column1Row, _columns)
 in 
-	table;
+    table;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Private Functions
@@ -98,11 +98,11 @@ in
 //
 DefaultRequestHeaders = [
     #"Authorization" = "Basic " & Neo4j.Encode(Extension.CurrentCredential()[Username], Extension.CurrentCredential()[Password]),
-	#"Content-Type"="application/json"
+    #"Content-Type"="application/json"
 ];
 
 ImplicitRequestHeaders = [
-	#"Content-Type"="application/json"
+    #"Content-Type"="application/json"
 ];
 
 //
@@ -114,16 +114,16 @@ ImplicitRequestHeaders = [
 //  databaseName: neo4j
 //
 Neo4j.DefaultUri = (optional scheme as nullable text, optional address as nullable text, optional port as nullable number, optional neo4jVersion as nullable number, optional databaseName as nullable text) =>
-	let
+    let
         _version = if(neo4jVersion) is null then 3.5 else neo4jVersion,
         _databaseName = if(databaseName) is null then "neo4j" else databaseName,
         _transactionEndPoint = if(_version) < 4.0 then "db/data/transaction/commit" else "db/" & _databaseName & "/tx",
-		_port = if (port) is null then 7474 else port,
-		_address = if address is null then "localhost." else address,
-		_scheme = if scheme is null then "http" else scheme,
-		uri = _scheme & "://" & _address & ":" & Text.From(_port) & "/" & _transactionEndPoint
-	in
-		uri;
+        _port = if (port) is null then 7474 else port,
+        _address = if address is null then "localhost." else address,
+        _scheme = if scheme is null then "http" else scheme,
+        uri = _scheme & "://" & _address & ":" & Text.From(_port) & "/" & _transactionEndPoint
+    in
+        uri;
 
 //
 // Encodes a username/password into a combined base64 string of {user}:{password}
@@ -159,13 +159,15 @@ Neo4j.GetTimeout = (timeout as nullable number) =>
 // Connector definition, allows access via User/Password combinations and Anonymous (Implicit)
 //
 Neo4j = [
+    TestConnection = (datasourcePath) => {"Neo4j.ExecuteCypher"},
+
     Authentication = [
         UsernamePassword = [
             Label = "Neo4j Authentication",
             UsernameLabel = "Username",
             PasswordLabel = "Password"
         ],
-		Anonymous = []
+        Anonymous = []
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
