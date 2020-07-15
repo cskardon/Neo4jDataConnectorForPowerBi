@@ -159,8 +159,18 @@ Neo4j.GetTimeout = (timeout as nullable number) =>
 // Connector definition, allows access via User/Password combinations and Anonymous (Implicit)
 //
 Neo4j = [
-    TestConnection = (datasourcePath) => {"Neo4j.ExecuteCypher"},
-
+    TestConnection = (datasourcePath) => 
+        let
+            json = Json.Document(datasourcePath),
+            cypher = json[cypher],
+            scheme = json[scheme],
+            address = json[address],
+            port = json[port],
+            neo4jVersion = json[neo4jVersion],
+            databaseName = json[databaseName],
+            timeout  = json[timeout]
+        in
+            {"Neo4j.ExecuteCypher", cypher, scheme, address, port, neo4jVersion, databaseName, timeout },
     Authentication = [
         UsernamePassword = [
             Label = "Neo4j Authentication",
