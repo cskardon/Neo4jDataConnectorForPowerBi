@@ -23,6 +23,8 @@ ExecuteCypherType = type function (
     cypher as (type text meta [
             Documentation.FieldCaption = "Cypher",
             Documentation.FieldDescription = "Enter your Cypher query here",
+            Formatting.IsMultiLine = true,
+            Formatting.IsCode = true,
             Documentation.SampleValues = {"MATCH (n) RETURN n", "MATCH (n) RETURN COUNT(n)"}
     ]),
     optional scheme as (type text meta [
