@@ -21,46 +21,48 @@ shared Neo4j.ExecuteCypher = Value.ReplaceType(ExecuteCypherImpl, ExecuteCypherT
 //
 ExecuteCypherType = type function (
     cypher as (type text meta [
-            Documentation.FieldCaption = "Cypher",
-            Documentation.FieldDescription = "Enter your Cypher query here",
+            Documentation.FieldCaption = Extension.LoadString("CypherCaption"),
+            Documentation.FieldDescription = Extension.LoadString("CypherDescription"),
             Formatting.IsMultiLine = true,
             Formatting.IsCode = true,
             Documentation.SampleValues = {"MATCH (n) RETURN n", "MATCH (n) RETURN COUNT(n)"}
     ]),
     optional scheme as (type text meta [
+            Documentation.FieldCaption = Extension.LoadString("SchemeCaption"),
             Documentation.FieldDescription = "The scheme to connect to your Neo4j instance",
             Documentation.SampleValues = {"http", "https"},
             Documentation.AllowedValues = { "http", "https" }
     ]),
     optional address as (type text meta [
-            Documentation.FieldCaption = "Address",
-            Documentation.FieldDescription = "The address for your Neo4j instance",
+            Documentation.FieldCaption = Extension.LoadString("AddressCaption"),
+            Documentation.FieldDescription = Extension.LoadString("AddressDescription"),
             Documentation.SampleValues = {"localhost.", "127.0.0.1"}
     ]),
     optional port as (type number meta [
-            Documentation.FieldCaption = "Port",
-            Documentation.FieldDescription = "The port of the Neo4j instance",
+            Documentation.FieldCaption = Extension.LoadString("PortCaption"),
+            Documentation.FieldDescription = Extension.LoadString("PortDescription"),
             Documentation.SampleValues = {"7474"}
     ]),
     optional neo4jVersion as (type number meta [
-            Documentation.FieldCaption = "Neo4j Version",
-            Documentation.FieldDescription = "The version of the server you are connecting to (default is 4.2).",
+            Documentation.FieldCaption = Extension.LoadString("Neo4jVersionCaption"),
+            Documentation.FieldDescription = Extension.LoadString("Neo4jVersionDescription"),
             Documentation.SampleValues = {3.5, 4.2},
             Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2, 4.3}
     ]),
     optional databaseName as (type text meta [
-            Documentation.FieldCaption = "Database Name",
-            Documentation.FieldDescription = "The name of your database (only used for a 4.x DB, if unsure, use neo4j)",
+            Documentation.FieldCaption = Extension.LoadString("DatabaseNameCaption"),
+            Documentation.FieldDescription = Extension.LoadString("DatabaseNameDescription"),
             Documentation.SampleValues = {"neo4j", "hr"}
     ]),
     optional timeout as (type number meta [
-            Documentation.FieldCaption = "Timeout for queries (seconds)",
-            Documentation.FieldDescription = "If you're running a long query you might want to set this high",
+            Documentation.FieldCaption = Extension.LoadString("TimeoutCaption"),
+            Documentation.FieldDescription = Extension.LoadString("TimeoutDescription"),
             Documentation.SampleValues = {30}
     ])
 ) as table meta [
-        Documentation.Name = "Execute Cypher - Output",
-        Documentation.LongDescription = "Provides the response of the query in a Json document"];
+        Documentation.Name = Extension.LoadString("ConnectorName"),
+        Documentation.LongDescription = Extension.LoadString("ConnectorDescription")
+    ];
 
 ///
 /// This is based on the blog post at: http://xclave.co.uk/2017/06/22/using-powerbi-with-neo4j/ 

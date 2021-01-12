@@ -117,13 +117,61 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddressCaption" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="AddressDescription" xml:space="preserve">
+    <value>The address for your Neo4j instance</value>
+  </data>
   <data name="ButtonHelp" xml:space="preserve">
     <value>Connect to Neo4j</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
     <value>Neo4j</value>
   </data>
+  <data name="ConnectorDescription" xml:space="preserve">
+    <value>Provides the response of the query in a Json document</value>
+  </data>
+  <data name="ConnectorName" xml:space="preserve">
+    <value>Execute Cypher - Output</value>
+  </data>
+  <data name="CypherCaption" xml:space="preserve">
+    <value>Cypher</value>
+  </data>
+  <data name="CypherDescription" xml:space="preserve">
+    <value>Enter your Cypher query here</value>
+  </data>
+  <data name="DatabaseNameCaption" xml:space="preserve">
+    <value>Database Name</value>
+  </data>
+  <data name="DatabaseNameDescription" xml:space="preserve">
+    <value>The name of your database (only used for a 4.x DB, if unsure, use neo4j)</value>
+  </data>
   <data name="DataSourceLabel" xml:space="preserve">
     <value>Neo4j</value>
+  </data>
+  <data name="Neo4jVersionCaption" xml:space="preserve">
+    <value>Neo4j Version</value>
+  </data>
+  <data name="Neo4jVersionDescription" xml:space="preserve">
+    <value>The version of the server you are connecting to (default is 4.2)</value>
+  </data>
+  <data name="PortCaption" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="PortDescription" xml:space="preserve">
+    <value>The port of the Neo4j instance</value>
+  </data>
+  <data name="SchemeCaption" xml:space="preserve">
+    <value>Scheme</value>
+  </data>
+  <data name="SchemeDescription" xml:space="preserve">
+    <value>The scheme to connect to your Neo4j instance</value>
+  </data>
+  <data name="TimeoutCaption" xml:space="preserve">
+    <value>Timeout for queries in seconds</value>
+  </data>
+  <data name="TimeoutDescription" xml:space="preserve">
+    <value>If you're running a long query you might want to set this high</value>
   </data>
 </root>
