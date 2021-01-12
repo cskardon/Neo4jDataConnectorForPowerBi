@@ -7,12 +7,27 @@ in
 */
 /*
 let 
-	result = Neo4j.GetCountOfNodes()
+    result = Neo4j.GetCountOfNodes()
 in
-	result
+    result
 */
 
+
 let 
-	result = Neo4j.ExecuteCypher("MATCH (n) RETURN COUNT(n)", null, "localhost", 8866)
+    result = Neo4j.ExecuteCypher("MATCH (n:Movie) RETURN n", "http", "localhost.", 7474, 4.2, "neo4j", 30)
 in
-	result
+    result
+
+    /*
+let 
+    result = Neo4j.ExecuteCypher("MATCH (n) RETURN COUNT(n)", "http", "Server2019Blog", 7474, 4.2, "neo4j", 30)
+in
+    result
+    */
+
+/*
+let 
+    result = Neo4j.ExecuteCypher("MATCH (n) RETURN COUNT(n)", "http", "localhost", 7474, 4.1, "neo4j", 30)
+in
+    result
+*/
