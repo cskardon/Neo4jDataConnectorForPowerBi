@@ -46,7 +46,7 @@ ExecuteCypherType = type function (
             Documentation.FieldCaption = "Neo4j Version",
             Documentation.FieldDescription = "The version of the server you are connecting to.",
             Documentation.SampleValues = {3.5, 4.0},
-            Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1}
+            Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2, 4.3}
     ]),
     optional databaseName as (type text meta [
             Documentation.FieldCaption = "Database Name",
@@ -74,7 +74,45 @@ ExecuteCypherImpl = (
             optional neo4jVersion as nullable number,
             optional databaseName as nullable text,
             optional timeout as nullable number) as table =>
+try
+    let
+        x = Diagnostics.Trace(TraceLevel.Error, "ExecuteCypherImpl", ()=>"Test", true),
+        _binaryCypher = Neo4j.CypherToM(cypher),
+        _source = Web.Contents(Neo4j.DefaultUri(scheme, address, port, neo4jVersion, databaseName), [
+            Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else DefaultRequestHeaders,
+            Content = _binaryCypher,
+            Timeout=#duration(0,0,0,Neo4j.GetTimeout(timeout))
+        ]),
+        _json = Json.Document(_source),
+        _results = _json[results],
+        _results1 = _results{0},
+        _data = _results1[data],
+        _columns = _results1[columns],
+        _tabledResults = Table.FromList(_data, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+        _rows = Table.ExpandRecordColumn(_tabledResults, "Column1", {"row"}, {"Column1.row"}),
+        _column1Row = _rows[Column1.row],
+        table = Table.FromRows(_column1Row, _columns)
+    in 
+        table
+otherwise
+    let 
+        message = Text.Format("Unable to execute '#[cypher]'", [cypher = Neo4j.CleanCyper(cypher)])
+    in 
+        Diagnostics.Trace(TraceLevel.Error, message, () => error message, true);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Private Functions
+
+ExecuteCypherImplPrv = (
+            cypher as text,
+            optional scheme as nullable text,
+            optional address as nullable text, 
+            optional port as nullable number,
+            optional neo4jVersion as nullable number,
+            optional databaseName as nullable text,
+            optional timeout as nullable number) as table =>
 let
+    x = Diagnostics.Trace(TraceLevel.Error, "ExecuteCypherImpl", ()=>"Test", true),
     _source = Web.Contents(Neo4j.DefaultUri(scheme, address, port, neo4jVersion, databaseName), [
         Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else DefaultRequestHeaders,
         Content = Neo4j.CypherToM(cypher),
@@ -89,11 +127,11 @@ let
     _rows = Table.ExpandRecordColumn(_tabledResults, "Column1", {"row"}, {"Column1.row"}),
     _column1Row = _rows[Column1.row],
     table = Table.FromRows(_column1Row, _columns)
+    
 in 
     table;
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-// Private Functions
+
 
 //
 // Generates the default request headers needed for Neo4j to work
@@ -141,13 +179,26 @@ Neo4j.Encode = (user as text, password as text) =>
 //
 Neo4j.CypherToM = (cypher as text) =>
     let 
+        cleanCypher = Neo4j.CleanCyper(cypher),
         binary = Text.ToBinary("{
                     ""statements"" : [ {
-                    ""statement"" : "" " & cypher & " ""} ]
+                    ""statement"" : "" " & cleanCypher & " ""} ]
                     }")
     in
         binary;
 
+//
+// Clean the Cypher - removing CRLF characters
+//
+Neo4j.CleanCyper = (cypher as text) =>
+    let 
+        cleanCypher = Text.Replace(Text.Replace(Text.Replace(Text.Replace(cypher, "#(cr)", " "), "#(lf)", " "), "\u000d", " "), "\u000a", " ")
+    in 
+        cleanCypher;
+
+//
+// Gets the default timeout (30s) or the value set.
+//
 Neo4j.GetTimeout = (timeout as nullable number) =>
     let 
         _timeout = if(timeout) is null then 30 else timeout
