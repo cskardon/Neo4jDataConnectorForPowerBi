@@ -44,8 +44,8 @@ ExecuteCypherType = type function (
     ]),
     optional neo4jVersion as (type number meta [
             Documentation.FieldCaption = "Neo4j Version",
-            Documentation.FieldDescription = "The version of the server you are connecting to.",
-            Documentation.SampleValues = {3.5, 4.0},
+            Documentation.FieldDescription = "The version of the server you are connecting to (default is 4.2).",
+            Documentation.SampleValues = {3.5, 4.2},
             Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2, 4.3}
     ]),
     optional databaseName as (type text meta [
@@ -74,15 +74,8 @@ ExecuteCypherImpl = (
             optional neo4jVersion as nullable number,
             optional databaseName as nullable text,
             optional timeout as nullable number) as table =>
-try
     let
-        x = Diagnostics.Trace(TraceLevel.Error, "ExecuteCypherImpl", ()=>"Test", true),
-        _binaryCypher = Neo4j.CypherToM(cypher),
-        _source = Web.Contents(Neo4j.DefaultUri(scheme, address, port, neo4jVersion, databaseName), [
-            Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else DefaultRequestHeaders,
-            Content = _binaryCypher,
-            Timeout=#duration(0,0,0,Neo4j.GetTimeout(timeout))
-        ]),
+        _source = Neo4j.ExecuteRestCall(cypher, scheme, address, port, neo4jVersion, databaseName, timeout),
         _json = Json.Document(_source),
         _results = _json[results],
         _results1 = _results{0},
@@ -93,44 +86,34 @@ try
         _column1Row = _rows[Column1.row],
         table = Table.FromRows(_column1Row, _columns)
     in 
-        table
-otherwise
-    let 
-        message = Text.Format("Unable to execute '#[cypher]'", [cypher = Neo4j.CleanCyper(cypher)])
-    in 
-        Diagnostics.Trace(TraceLevel.Error, message, () => error message, true);
+        table;
 
+  
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Private Functions
 
-ExecuteCypherImplPrv = (
+Neo4j.ExecuteRestCall = (
             cypher as text,
             optional scheme as nullable text,
             optional address as nullable text, 
             optional port as nullable number,
             optional neo4jVersion as nullable number,
             optional databaseName as nullable text,
-            optional timeout as nullable number) as table =>
-let
-    x = Diagnostics.Trace(TraceLevel.Error, "ExecuteCypherImpl", ()=>"Test", true),
-    _source = Web.Contents(Neo4j.DefaultUri(scheme, address, port, neo4jVersion, databaseName), [
-        Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else DefaultRequestHeaders,
-        Content = Neo4j.CypherToM(cypher),
-        Timeout=#duration(0,0,0,Neo4j.GetTimeout(timeout))
-    ]),
-    _json = Json.Document(_source),
-    _results = _json[results],
-    _results1 = _results{0},
-    _data = _results1[data],
-    _columns = _results1[columns],
-    _tabledResults = Table.FromList(_data, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-    _rows = Table.ExpandRecordColumn(_tabledResults, "Column1", {"row"}, {"Column1.row"}),
-    _column1Row = _rows[Column1.row],
-    table = Table.FromRows(_column1Row, _columns)
-    
-in 
-    table;
-
+            optional timeout as nullable number) as binary =>
+try
+    let
+        content = Web.Contents(Neo4j.DefaultUri(scheme, address, port, neo4jVersion, databaseName), [
+            Headers = if Extension.CurrentCredential()[AuthenticationKind] = "Implicit" then ImplicitRequestHeaders else DefaultRequestHeaders,
+            Content = Neo4j.CypherToM(cypher),
+            Timeout=#duration(0,0,0,Neo4j.GetTimeout(timeout))
+        ])    
+    in 
+        content
+otherwise
+    let 
+        message = Text.Format("Error executing the call against the database.#(cr)#(lf)Cypher was: '#[cypher]'#(cr)#(lf)NB. Cypher shown is how it was formatted to send to Neo4j.", [cypher=Neo4j.CleanCyper(cypher)])
+    in 
+        Diagnostics.Trace(TraceLevel.Error, message, () => error message, true);
 
 
 //
@@ -155,7 +138,7 @@ ImplicitRequestHeaders = [
 //
 Neo4j.DefaultUri = (optional scheme as nullable text, optional address as nullable text, optional port as nullable number, optional neo4jVersion as nullable number, optional databaseName as nullable text) =>
     let
-        _version = if(neo4jVersion) is null then 3.5 else neo4jVersion,
+        _version = if(neo4jVersion) is null then 4.2 else neo4jVersion,
         _databaseName = if(databaseName) is null then "neo4j" else databaseName,
         _transactionEndPoint = if(_version) < 4.0 then "db/data/transaction/commit" else "db/" & _databaseName & "/tx",
         _port = if (port) is null then 7474 else port,
