@@ -1,37 +1,22 @@
-## Welcome to GitHub Pages
+# Neo4j DataConnector For Power BI
 
-You can use the [editor on GitHub](https://github.com/cskardon/Neo4jDataConnectorForPowerBi/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Pretty much what it says on the tin.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## How do I try it?
 
-### Markdown
+Put it into your PowerBI extensions folder (which appears to be: <USER>/Documents/Power BI Desktop/Custom Connectors)
+Allow Power BI to use beta connectors: Goto 'Options' in Power BI Select 'Security' Under the 'Data Extensions' heading select the radio option of:
+(Not Recommended) Allow any extension to load without validation or warning
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Releases
+All releases are available on the Releases page.
 
-```markdown
-Syntax highlighted code block
+## Versions
+* 1.0 = Initial release
+* 1.1 = Bug fix to get it working with Neo4j 4.0 MR2 (and probably onwards)
+* 1.2 = Neo4j 4.0 release - should work with 3.x and 4.x
+* 1.3 = Adding Timeout settings for longer running queries
 
-# Header 1
-## Header 2
-### Header 3
+### Beta Versions
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/cskardon/Neo4jDataConnectorForPowerBi/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+* 1.4beta = Adding Auto-refresh support -- See Issue [#1](https://github.com/cskardon/Neo4jDataConnectorForPowerBi/issues/1)
