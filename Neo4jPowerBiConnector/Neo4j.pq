@@ -177,7 +177,7 @@ Neo4j.CypherToM = (cypher as text) =>
 //
 Neo4j.CleanCyper = (cypher as text) =>
     let 
-        cleanCypher = Text.Replace(Text.Replace(Text.Replace(Text.Replace(cypher, "#(cr)", " "), "#(lf)", " "), "\u000d", " "), "\u000a", " ")
+        cleanCypher = Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(cypher, "#(cr)", " "), "#(lf)", " "), "\u000d", " "), "\u000a", " "), Character.FromNumber(34), "\""")
     in 
         cleanCypher;
 
