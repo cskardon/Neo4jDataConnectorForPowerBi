@@ -70,12 +70,12 @@ ExecuteCypherType = type function (
 ///
 ExecuteCypherImpl = (
             cypher as text,
-            scheme as nullable text,
-            address as nullable text, 
-            port as nullable number,
-            neo4jVersion as nullable number,
-            databaseName as nullable text,
-            timeout as nullable number) as table =>
+            scheme as text,
+            address as text, 
+            port as number,
+            neo4jVersion as number,
+            databaseName as text,
+            timeout as number) as table =>
     let
         _source = Neo4j.ExecuteRestCall(cypher, scheme, address, port, neo4jVersion, databaseName, timeout),
         _json = Json.Document(_source),
@@ -229,8 +229,7 @@ Neo4j.Publish = [
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://github.com/cskardon/Neo4jDataConnectorForPowerBi/",
     SourceImage = Neo4j.Icons,
-    SourceTypeImage = Neo4j.Icons,
-    SupportsDirectQuery = true
+    SourceTypeImage = Neo4j.Icons
 ];
 
 // 
