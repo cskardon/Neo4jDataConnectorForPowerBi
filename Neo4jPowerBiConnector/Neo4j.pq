@@ -27,34 +27,34 @@ ExecuteCypherType = type function (
             Formatting.IsCode = true,
             Documentation.SampleValues = {"MATCH (n) RETURN n", "MATCH (n) RETURN COUNT(n)"}
     ]),
-    optional scheme as (type text meta [
+    scheme as (type text meta [
             Documentation.FieldCaption = Extension.LoadString("SchemeCaption"),
             Documentation.FieldDescription = "The scheme to connect to your Neo4j instance",
             Documentation.SampleValues = {"http", "https"},
             Documentation.AllowedValues = { "http", "https" }
     ]),
-    optional address as (type text meta [
+    address as (type text meta [
             Documentation.FieldCaption = Extension.LoadString("AddressCaption"),
             Documentation.FieldDescription = Extension.LoadString("AddressDescription"),
             Documentation.SampleValues = {"localhost.", "127.0.0.1"}
     ]),
-    optional port as (type number meta [
+    port as (type number meta [
             Documentation.FieldCaption = Extension.LoadString("PortCaption"),
             Documentation.FieldDescription = Extension.LoadString("PortDescription"),
             Documentation.SampleValues = {"7474"}
     ]),
-    optional neo4jVersion as (type number meta [
+    neo4jVersion as (type number meta [
             Documentation.FieldCaption = Extension.LoadString("Neo4jVersionCaption"),
             Documentation.FieldDescription = Extension.LoadString("Neo4jVersionDescription"),
             Documentation.SampleValues = {3.5, 4.2},
             Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2, 4.3}
     ]),
-    optional databaseName as (type text meta [
+    databaseName as (type text meta [
             Documentation.FieldCaption = Extension.LoadString("DatabaseNameCaption"),
             Documentation.FieldDescription = Extension.LoadString("DatabaseNameDescription"),
             Documentation.SampleValues = {"neo4j", "hr"}
     ]),
-    optional timeout as (type number meta [
+    timeout as (type number meta [
             Documentation.FieldCaption = Extension.LoadString("TimeoutCaption"),
             Documentation.FieldDescription = Extension.LoadString("TimeoutDescription"),
             Documentation.SampleValues = {30}
@@ -70,12 +70,12 @@ ExecuteCypherType = type function (
 ///
 ExecuteCypherImpl = (
             cypher as text,
-            optional scheme as nullable text,
-            optional address as nullable text, 
-            optional port as nullable number,
-            optional neo4jVersion as nullable number,
-            optional databaseName as nullable text,
-            optional timeout as nullable number) as table =>
+            scheme as text,
+            address as text, 
+            port as number,
+            neo4jVersion as number,
+            databaseName as text,
+            timeout as number) as table =>
     let
         _source = Neo4j.ExecuteRestCall(cypher, scheme, address, port, neo4jVersion, databaseName, timeout),
         _json = Json.Document(_source),
@@ -96,12 +96,12 @@ ExecuteCypherImpl = (
 
 Neo4j.ExecuteRestCall = (
             cypher as text,
-            optional scheme as nullable text,
-            optional address as nullable text, 
-            optional port as nullable number,
-            optional neo4jVersion as nullable number,
-            optional databaseName as nullable text,
-            optional timeout as nullable number) as binary =>
+            scheme as nullable text,
+            address as nullable text, 
+            port as nullable number,
+            neo4jVersion as nullable number,
+            databaseName as nullable text,
+            timeout as nullable number) as binary =>
 try
     let
         content = Web.Contents(Neo4j.DefaultUri(scheme, address, port, neo4jVersion, databaseName), [
