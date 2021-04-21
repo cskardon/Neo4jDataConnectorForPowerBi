@@ -127,7 +127,7 @@
     <value>Connect to Neo4j</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>Neo4j 1.5</value>
+    <value>Neo4j 2.0</value>
   </data>
   <data name="ConnectorDescription" xml:space="preserve">
     <value>Provides the response of the query in a Json document</value>
