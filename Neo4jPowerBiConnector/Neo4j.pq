@@ -30,8 +30,8 @@ ExecuteCypherType = type function (
     scheme as (type text meta [
             Documentation.FieldCaption = Extension.LoadString("SchemeCaption"),
             Documentation.FieldDescription = "The scheme to connect to your Neo4j instance",
-            Documentation.SampleValues = {"http", "https"},
-            Documentation.AllowedValues = { "http", "https" }
+            Documentation.SampleValues = {"http", "https"}//,
+            //Documentation.AllowedValues = { "http", "https" }
     ]),
     address as (type text meta [
             Documentation.FieldCaption = Extension.LoadString("AddressCaption"),
@@ -46,8 +46,8 @@ ExecuteCypherType = type function (
     neo4jVersion as (type number meta [
             Documentation.FieldCaption = Extension.LoadString("Neo4jVersionCaption"),
             Documentation.FieldDescription = Extension.LoadString("Neo4jVersionDescription"),
-            Documentation.SampleValues = {3.5, 4.2},
-            Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2, 4.3}
+            Documentation.SampleValues = {3.5, 4.2}//,
+            //Documentation.AllowedValues = {3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 4.0, 4.1, 4.2, 4.3}
     ]),
     databaseName as (type text meta [
             Documentation.FieldCaption = Extension.LoadString("DatabaseNameCaption"),
