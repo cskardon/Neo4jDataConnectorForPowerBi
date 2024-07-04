@@ -14,7 +14,7 @@ in
 
 
 let 
-    result = Neo4j.ExecuteCypher("MATCH (n:Movie) WHERE n.title = ""The Matrix"" RETURN n", "http", "localhost.", 7474, 2.4, "neo4j", 30)
+    result = Neo4j.ExecuteCypher("MATCH (n:Movie) WHERE n.title = ""The Matrix"" RETURN n.title", "http", "localhost.", 7474, 4.4, "neo4j", 30)
 in
     result
 

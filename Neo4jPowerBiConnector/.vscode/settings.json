@@ -1,0 +1,7 @@
+{
+  "powerquery.sdk.defaultQueryFile": "${workspaceFolder}\\${workspaceFolderBasename}.query.pq",
+  "powerquery.sdk.defaultExtension": "${workspaceFolder}\\bin\\AnyCPU\\Debug\\${workspaceFolderBasename}.mez",
+  "powerquery.general.mode": "SDK",
+  "powerquery.sdk.externals.nugetFeed": "https://api.nuget.org/v3/index.json",
+  "powerquery.sdk.tools.location": "D:\\Dev Tools\\microsoft.powerquery.sdktools.2.127.3\\tools"
+}
